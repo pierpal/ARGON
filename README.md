@@ -192,8 +192,6 @@ where “ID1” and “ID2” specify the IDs of the individuals sharing an IBD 
 
 ###Known issues and planned updates
 
-Contact me if you need one of these updates for your analysis, and I’ll try to prioritize it (or if you want to suggest additional features).
-
 **TODO list**
 
 -	Complete code for Newick tree output of ARG marginal trees.
