@@ -7,6 +7,12 @@ ARGON simulates the discrete time Wright Fisher process (DTWF) backwards in time
 
 ## Usage
 
+To run ARGON, you can type
+
+		jaa -jar ARGON.0.1.160101.jar [options]
+
+If no option is specified, the program will generate output using default parameters (10 Mb region for 1,000 samples from a population of 1,000 individuals, with rec=1E-8 and mut=1.65E-8). Command line options are described below.
+
 The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umich.edu/liang/genome/) simulator ([Liang et al., Bioinformatics 2007](http://bioinformatics.oxfordjournals.org/content/23/12/1565.full.pdf)).
 
 ### Overview of commands
