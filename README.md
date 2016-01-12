@@ -79,7 +79,7 @@ The number of samples from each population is specified using the “-pop” fla
 
 **Block size approximation**
 
--len&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Default = 1 bp; example: "-len 1" or "-len 10000")
+-len&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Default = 1; example: "-len 1" or "-len 10000")
 
 ARGON can run in approximate mode, which results in improved speed and memory usage. The approximation is similar to that adopted by the GENOME simulator. In approximate mode, the location of recombination events is rounded so that all events occur at the edges of discrete blocks of fixed genetic length. The block length is specified using the “-len” flag. For instance, “-len 10000” requires recombination to occur at the edges of blocks of length 10 micromorgans (1 micromorgan = 0.000001 Morgans). The approximation results in increased correlation for nearby markers (benchmarks for “-len 10000” and “-len 50000” are provided in the supplementary materials of the ARGON paper). 
 
