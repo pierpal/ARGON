@@ -22,7 +22,7 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 	-pop		Number of samples.
 		    	(Default = 1 pop, 1000 samples; example: "-pop 1 1000" or "-pop 2 1000 2000")
 	-len		Minimum block size.
-			    (Default = 1 bp; example: "-len 1" or "-len 10000")
+			    (Default = 1; example: "-len 1" or "-len 10000")
 	-size		Chromosome length (Mb).
 			    (Default = 10 cM, 10 Mb; example: "-size 10")
 	-rec		Recombination rate per base pair.
