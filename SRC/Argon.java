@@ -31,8 +31,8 @@ import java.util.zip.GZIPOutputStream;
  */
 public class Argon {
 
-    static String version = "0.1.160101";
-    static String date = "January 01, 2016";
+    static String version = "0.1.160113";
+    static String date = "January 13, 2016";
     static String authors = "Pier Palamara";
     static String contact = "ppalama AT hsph DOT harvard " + "DOT edu";
 
@@ -141,7 +141,6 @@ public class Argon {
                     argIndex++;
                 } else if (arg.equals("-pop")) {
                     try {
-                        System.out.println(popFlagUsed);
                         numPops = Integer.parseInt(args[argIndex++]);
 //                    System.out.println("There will be " + numPops + " population(s).");
                         if (popFlagUsed) {
@@ -540,121 +539,182 @@ public class Argon {
 //                    if (verbose) {
 //                        System.out.println();
 //                    }
-
                     int GCend = -1;
                     while (ind != null) {
-//                        if (verbose) {
-//                            System.out.println("Pop: " + currPop + " Ind: " + ind.ID + "; gen " + gen);
-//                        }
-//                        if (verbose) {
-//                            ind.print();
-//                        }
-                        nextRec = 0;
-                        int parentTill = -1;
-                        if (!doGeneConversion || ind.segments.get(0).start > GCend) {
-                            // the previous tract was not gene conversion, or the gene conversion tract was terminated before the start of the current block
+                        if (doGeneConversion) { //TODO: should avoid this and try to have unique piece of code for both gene conversion and no-gene conversion
+//                            if (verbose) {
+//                                System.out.println("Pop: " + currPop + " Ind: " + ind.ID + "; gen " + gen);
+//                                ind.print();
+//                            }
+                            nextRec = 0;
+                            if (ind.segments.get(0).start > GCend) {
+                                // the previous tract was not gene conversion, or the gene conversion tract has already ended by the start of the current block
+                                int distToNextRec = (int) Math.round(Tools.sampleExponential(nextRecOrGCRate, generator));
+                                nextRec = ind.segments.get(0).start + Tools.roundToBlock(distToNextRec, minBlockSize);
+//                                if (verbose) {
+//                                    System.out.println("Not in GC tract. Sampled\t" + distToNextRec / 1000000. + ". Current start is: " + ind.segments.get(0).start / 1000000. + " (GCend is " + GCend / 1000000. + ")");
+//                                }
+                            } else {
+                                // the previous tract was gene conversion, and the gene conversion tract has not ended by the start of the current block
+                                nextRec = GCend;
+//                                if (verbose) {
+//                                    System.out.println("In GC tract. Will terminate at previously sampled position:\t" + nextRec);
+//                                }
+                            }
+                            int parentTill = nextRec;
+                            if (ind.segments.get(ind.segments.size() - 1).end >= parentTill && parentTill >= ind.segments.get(0).start) {
+//                                if (verbose) {
+//                                    System.out.println("Will recombine at " + parentTill);
+//                                }
+                                // recombination will happen, handle current individual and update current with remaining part, then iterate
+                                ArrayList<Block> otherGuySegments = ind.splitAfterSomeBlocks(parentTill, ind.ID, gen);
+                                nextIndividualChunk = new Individual(ind.ID, otherGuySegments);
+                                nextIndividualChunk.ID = ind.ID;
+                            } else {
+                                nextIndividualChunk = null;
+                            }
+
+                            //handle current individual here
+                            long parentID;
+                            int sampledPopID;
+                            HashMap<Long, Individual> sampledPop;
+                            if (parentQueue.size() < 2) {
+                                //sample a population
+                                double[][] migMatrix = demographicModel.getSamplingProbabilities(gen);
+                                double randomNumber = generator.nextDouble();
+                                double totProb = 0.;
+                                sampledPopID = 0;
+//                                if (verbose) {
+//                                    System.out.println("Sampling parent for population " + currPop + " Ind: " + ind.ID);
+//                                }
+                                // TODO: speed this up by storing non-zero prob vector in population class, iterate on that instead.
+                                for (int i = 0; i < migMatrix[currPop].length; i++) {
+//                                    if (verbose) {
+//                                        System.out.println("\tsampling " + randomNumber + " " + (totProb + migMatrix[currPop][i]));
+//                                    }
+                                    if (totProb + migMatrix[currPop][i] >= randomNumber) {
+                                        sampledPopID = i;
+                                        break;
+                                    }
+                                    totProb += migMatrix[currPop][i];
+                                }
+                                sampledPop = populationsParents.get(sampledPopID);
+
+                                //sample a parent
+                                parentID = demographicModel.getIDOffsetAt(gen + 1, sampledPopID) + (long) Math.floor(generator.nextDouble() * (demographicModel.getSizeAt(gen + 1, sampledPopID))) + 1;
+                                parent = sampledPop.get(parentID);
+                            } else {
+                                parent = parentQueue.poll();
+                                sampledPopID = sampledPopQueue.poll();
+                                sampledPop = populationsParents.get(sampledPopID);
+                                parentID = parent.ID;
+                            }
+//                            if (verbose) {
+//                                System.out.println("Sampled parent from pop: " + sampledPopID + " parentID " + parentID + " offset " + demographicModel.getIDOffsetAt(gen + 1, sampledPopID));
+//                            }
+                            //handle coalescence
+                            if (parent == null) {
+                                parent = new Individual(parentID, ind.segments);
+                            } else {
+                                ArrayList<Block> coalesced = parent.mergeArrayLists(ind.segments, gen + 1, parentID, totModernSamples, roots, childrenOfThisGeneration);
+                                for (int i = 0; i < coalesced.size(); i++) {
+                                    coalescedBlocks += coalesced.get(i).end - coalesced.get(i).start + 1;
+                                }
+                            }
+                            if (!parent.segments.isEmpty()) {
+                                sampledPop.put(parentID, parent);
+                            } else {
+                                sampledPop.remove(parentID);
+                            } //done
+                            ind = nextIndividualChunk;
+                            parentQueue.add(parent);
+                            sampledPopQueue.add(sampledPopID);
+                            // if GCend == nextRec, I have just terminated a GC tract, will sample next GC/rec event. Else, may sample a GC
+                            if (GCend != nextRec && parentTill < genomeSizeGenetic && generator.nextDouble() < probGeneConversionGivenRec) {
+                                // enter gene conversion tract
+                                GCend = Tools.roundToBlock(sampleGeneConversionTract(parentTill, verbose), minBlockSize);;
+//                                if (verbose) {
+//                                    System.out.println("Gene conversion tract from " + parentTill + " to " + GCend);
+//                                }
+                            } else {
+                                GCend = -1;
+//                                if (verbose) {
+//                                    if (GCend != nextRec) {
+//                                        if (verbose) {
+//                                            System.out.println("No gene conversion tract, standard recombination will happen (because of sampling or genome size).");
+//                                        }
+//                                    } else {
+//                                        System.out.println("No gene conversion tract, standard recombination will happen (because a GC just happened).");
+//                                    }
+//                                }
+                            }
+                        } else {
+                            if (verbose) {
+                                System.out.println("Pop: " + currPop + " Ind: " + ind.ID + "; gen " + gen);
+                            }
+                            if (verbose) {
+                                ind.print();
+                            }
+                            nextRec = 0;
                             while (nextRec == 0) {
                                 nextRec = (int) Math.round(Tools.sampleExponential(1e-8f, generator));
                                 nextRec = Tools.roundToBlock(nextRec, minBlockSize);
                             }
-                            parentTill = ind.segments.get(0).start + nextRec;
-                        } else {
-                            // the previous tract was gene conversion, and the gene conversion tract has not ended by the start of the current block
-                            parentTill = GCend;
-//                            if (verbose) {
-//                                System.out.println("In GC tract. Will terminate at previously sampled position:\t" + nextRec);
-//                            }
-                        }
-                        recs.add(nextRec);
-                        if (ind.segments.get(ind.segments.size() - 1).end >= parentTill && parentTill >= ind.segments.get(0).start) {
-//                            if (verbose) {
-//                                System.out.println("Will recombine at " + parentTill);
-//                            }
-                            // recombination will happen, handle current individual and update current with remaining part, then iterate
-                            ArrayList<Block> otherIndSegments = ind.splitAfterSomeBlocks(parentTill, ind.ID, gen);
-                            nextIndividualChunk = new Individual(ind.ID, otherIndSegments);
-                            nextIndividualChunk.ID = ind.ID;
-                        } else {
-                            nextIndividualChunk = null;
-                        }
+                            int parentTill = ind.segments.get(0).start + nextRec;
+                            if (ind.segments.get(ind.segments.size() - 1).end >= parentTill) {
+                                if (verbose) {
+                                    System.out.println("Will recombine at " + parentTill);
+                                }
+                                // recombination will happen, handle current individual and update current with remaining part, then iterate
+                                ArrayList<Block> otherGuySegments = ind.splitAfterSomeBlocks(parentTill, ind.ID, gen);
+                                nextIndividualChunk = new Individual(ind.ID, otherGuySegments);
+                                nextIndividualChunk.ID = ind.ID;
+                            } else {
+                                nextIndividualChunk = null;
+                            }
 
-                        // handle current individual here
-                        long parentID;
-                        int sampledPopID;
-                        HashMap<Long, Individual> sampledPop;
-                        if (parentQueue.size() < 2) {
-                            parent = null;
-                            parentID = -1;
-                            sampledPop = null;
-                            sampledPopID = 0;
+                            //handle current individual here
                             //sample a population
                             double[][] migMatrix = demographicModel.getSamplingProbabilities(gen);
                             double randomNumber = generator.nextDouble();
                             double totProb = 0.;
-                            sampledPopID = 0;
-//                            if (verbose) {
-//                                System.out.println("Sampling parent for population " + currPop + " Ind: " + ind.ID);
-//                            }
-                            // TODO: speed this up by storing non-zero prob vector in population class, iterate on that instead.
+                            int sampledPopID = 0;
+                            if (verbose) {
+                                System.out.println("Sampling parent for population " + currPop + " Ind: " + ind.ID);
+                            }
                             for (int i = 0; i < migMatrix[currPop].length; i++) {
-//                                if (verbose) {
-//                                    System.out.println("\tsampling " + randomNumber + " " + (totProb + migMatrix[currPop][i]));
-//                                }
+                                if (verbose) {
+                                    System.out.println("\tsampling " + randomNumber + " " + (totProb + migMatrix[currPop][i]));
+                                }
                                 if (totProb + migMatrix[currPop][i] >= randomNumber) {
                                     sampledPopID = i;
                                     break;
                                 }
                                 totProb += migMatrix[currPop][i];
                             }
-                            sampledPop = populationsParents.get(sampledPopID);
-                            //sample a parent
-                            parentID = demographicModel.getIDOffsetAt(gen + 1, sampledPopID) + (long) Math.floor(generator.nextDouble() * (demographicModel.getSizeAt(gen + 1, sampledPopID))) + 1;
-                            parent = sampledPop.get(parentID);
-                        } else {
-                            parent = parentQueue.poll();
-                            sampledPopID = sampledPopQueue.poll();
-                            sampledPop = populationsParents.get(sampledPopID);
-                            parentID = parent.ID;
-                        }
-//                        if (verbose) {
-//                            System.out.println("Sampled parent from pop: " + sampledPopID + " parentID " + parentID + " offset " + demographicModel.getIDOffsetAt(gen + 1, sampledPopID));
-//                        }
+                            HashMap<Long, Individual> sampledPop = populationsParents.get(sampledPopID);
 
-                        //handle coalescence
-                        if (parent == null) {
-                            parent = new Individual(parentID, ind.segments);
-                        } else {
-                            ArrayList<Block> coalesced = parent.mergeArrayLists(ind.segments, gen + 1, parentID, totModernSamples, roots, childrenOfThisGeneration);
-                            for (int i = 0; i < coalesced.size(); i++) {
-                                coalescedBlocks += coalesced.get(i).end - coalesced.get(i).start + 1;
+                            //sample a parent
+                            long parentID = demographicModel.getIDOffsetAt(gen + 1, sampledPopID) + (long) Math.floor(generator.nextDouble() * (demographicModel.getSizeAt(gen + 1, sampledPopID))) + 1;
+                            parent = sampledPop.get(parentID);
+                            //handle coalescence
+                            if (parent == null) {
+                                parent = new Individual(parentID, ind.segments);
+                            } else {
+                                ArrayList<Block> coalesced = parent.mergeArrayLists(ind.segments, gen + 1, parentID, totModernSamples, roots, childrenOfThisGeneration);
+                                for (int i = 0; i < coalesced.size(); i++) {
+                                    coalescedBlocks += coalesced.get(i).end - coalesced.get(i).start + 1;
+                                }
                             }
-                        }
-                        if (!parent.segments.isEmpty()) { //could have stopped tracking this one
-                            sampledPop.put(parentID, parent);
-                        } else {
-                            sampledPop.remove(parentID);
-                        }
-                        ind = nextIndividualChunk;
-                        parentQueue.add(parent);
-                        sampledPopQueue.add(sampledPopID);
-                        // if GCend == nextRec, I have just terminated a GC tract -- will sample next GC/rec event. Otherwise may sample a GC
-                        if (doGeneConversion && GCend != nextRec && parentTill < genomeSizeGenetic && generator.nextDouble() < probGeneConversionGivenRec) {
-                            // enter gene conversion tract
-                            GCend = Tools.roundToBlock(sampleGeneConversionTract(parentTill, verbose), minBlockSize);;
-//                            if (verbose) {
-//                                System.out.println("Gene conversion tract from " + parentTill + " to " + GCend);
-//                            }
-                        } else {
-                            GCend = -1;
-//                            if (verbose) {
-//                                if (GCend != nextRec) {
-//                                    if (verbose) {
-//                                        System.out.println("No gene conversion tract, standard recombination will happen (because of sampling or genome size).");
-//                                    }
-//                                } else {
-//                                    System.out.println("No gene conversion tract, standard recombination will happen (because a GC just happened).");
-//                                }
-//                            }
+                            if (verbose) {
+                                System.out.println("\tsampled from pop: " + sampledPopID + " parentID " + parentID + " offset " + demographicModel.getIDOffsetAt(gen + 1, sampledPopID) + "\n");
+                            }
+                            if (parent.segments.size() != 0) {
+                                sampledPop.put(parentID, parent);
+                            } else {
+                                sampledPop.remove(parentID);
+                            }
+                            ind = nextIndividualChunk;
                         }
                     }
                 }
