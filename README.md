@@ -1,6 +1,6 @@
 # ARGON
 
-**Current version:** 0.1.160101 (January 01, 2016)<br />
+**Current version:** 0.1.160113 (January 13, 2016)<br />
 **Reference:** [P.F. Palamara, “ARGON: fast, whole-genome simulation of the discrete time Wright-Fisher process”, BioRxiv 2016, doi: http://dx.doi.org/10.1101/036376](http://biorxiv.org/content/early/2016/01/12/036376).
 
 ARGON simulates the discrete time Wright Fisher process (DTWF) backwards in time. The DTWF is equivalent to the coalescent process if the sample size is small compared to the effective population size. ARGON supports arbitrary demographic history, migration, variable mutation/recombination rates and gene conversion, and efficiently outputs pairwise identical-by-descent (IBD) sharing data.
@@ -9,7 +9,7 @@ ARGON simulates the discrete time Wright Fisher process (DTWF) backwards in time
 
 To run ARGON, you can type
 
-		java -jar ARGON.0.1.160101.jar [options]
+		java -jar ARGON.0.1.jar [options]
 
 If no option is specified, the program will generate output using default parameters (10 Mb region for 1,000 samples from a population of 1,000 individuals, with rec=1E-8 and mut=1.65E-8). Command line options are described below.
 
@@ -75,7 +75,7 @@ Example:
 
 This file specifies that two populations exist at generation 0. Population 1 has size 10,000, and population 2 has size 20,000. An individual from population 1 at generation 0 has a chance of 0.998 to have an ancestor in population 1, and a chance of 0.002 to have an ancestor in population 2 (this specifies migration from population 2 to 1 forward in time). Note that if the sum of outgoing rates for a population does not sum to 1, it will be automatically normalized so that it does (a warning will be printed). Similarly, an individual from population 2 has a chance 0.999 to have a parent in population 2, and 0.001 to have a parent in population 1. At generation 1, both populations have size 1,000. All individuals at generation 1 will have parents from population 1, which at generation 2 will have size 2,000 individuals. The fourth line of the file is equivalent to “1-1_1	2-1_1”, but “_1” can be omitted.
 
-Additional examples of demographic models can be found in the [GENOME simulator manual](http://csg.sph.umich.edu/liang/genome/). Note, however, that ARGON 0.1.160101 requires all generations to be specified (i.e. there can be no gap between generations), and that the GENOME format does not allow migration rates (introduced with the “_” character in the ARGON format as described above). The demographic model parsed by ARGON can be verified when printed in output before simulation begins.
+Additional examples of demographic models can be found in the [GENOME simulator manual](http://csg.sph.umich.edu/liang/genome/). Note, however, that ARGON 0.1 requires all generations to be specified (i.e. there can be no gap between generations), and that the GENOME format does not allow migration rates (introduced with the “_” character in the ARGON format as described above). The demographic model parsed by ARGON can be verified when printed in output before simulation begins.
 
 **Sample sizes**
 
@@ -213,4 +213,5 @@ For bug reports or suggestions, please contact me at ppalama AT hsph DOT harvard
 
 ###Version history
 
+- Jan 13 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fixed recombination problem. Back to normal speed/memory usage in 160113.
 - Jan 10 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ARGON 0.1.160101 released.
