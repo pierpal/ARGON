@@ -132,7 +132,7 @@ The minimum derived allele frequency of the output sequence is specified using t
 **Output location**
 
 -out&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Default = output to files ARGON.*; example: "-out ARGON")<br />
--screen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Not active (will write to file instead).
+-screen&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Default = Not active).
 
 The user can specify the output files prefix using the “-out” flag (e.g. “-out file” will output the sequence data in “file.mut”, see details below). All output can be redirected to screen using the “-screen” flag, in which case files will not be written.
 
