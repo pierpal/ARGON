@@ -115,7 +115,7 @@ The user can specify a variable rate for the recombination and/or mutation proce
 
     Position  recRate  cumRecRate  mutRate
 
-Where “Position” is specified in base pairs, and determines the beginning of a physical interval in which the specified recombination and mutation rates will hold. “recRate” specifies the recombination rate, expressed in centimorgans per megabase (e.g. "-rec 1E-8” is equivalent to 1 cM/Mb). The “cumRecRate” field indicates the genetic position corresponding to the previously specified "Position" field (i.e. the cumulative recombination rate), and “mutRate” specifies the mutation rate for the interval, expressed in chance of mutation per bp per generation (same scale as the “-mut” flag).
+Where “Position” is specified in base pairs, and determines the beginning of a physical interval in which the specified recombination and mutation rates will hold. “recRate” specifies the recombination rate, expressed in centimorgans per megabase (e.g. "-rec 1E-8” is equivalent to 1 cM/Mb). The “cumRecRate” field indicates the genetic position corresponding to the previously specified "Position" field (i.e. the cumulative recombination rate), and “mutRate” specifies the mutation rate for the interval, expressed in chance of mutation per bp per generation (same scale as the “-mut” flag). The FILES/GENETIC_MAP/ folder contains an example. Note the format is similar to commonly available genetic maps, except the mutation rate field needs to be added.
 
 **Random seed**
 
