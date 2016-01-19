@@ -18,7 +18,7 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 ### Overview of commands
 
 	-N	        Population size.
-			    (Default = 1000; example: "-N 10000")
+			    (Default = 1000; example: "-N 10000" or “-N model.txt”)
 	-pop		Number of samples.
 		    	(Default = 1 pop, 1000 samples; example: "-pop 1 1000" or "-pop 2 1000 2000")
 	-len		Minimum block size.
