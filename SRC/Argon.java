@@ -10,9 +10,11 @@ import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
 import java.io.Writer;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -31,8 +33,8 @@ import java.util.zip.GZIPOutputStream;
  */
 public class Argon {
 
-    static String version = "0.1.160113";
-    static String date = "January 13, 2016";
+    static String version = "0.1.160205";
+    static String date = "February 05, 2016";
     static String authors = "Pier Palamara";
     static String contact = "ppalama AT hsph DOT harvard " + "DOT edu";
 
@@ -60,6 +62,7 @@ public class Argon {
     static boolean doGeneConversion = false;
     static boolean gzipOutput = false;
     static boolean popFlagUsed = false;
+    static boolean noVCF = false;
 
     static float recRate = 0.00000001f;
     static float MAF = 0.0f;
@@ -86,6 +89,7 @@ public class Argon {
     static HashMap<Integer, Integer> mapIndex = new HashMap<Integer, Integer>();
 
     static String popSizeFile = "";
+    static String chromosome = "1";
     static String mapFile = "";
     static String fileBase = "ARGON";
     static float[] AFS; // TODO have a matrix pop x pop
@@ -253,6 +257,8 @@ public class Argon {
                     writeAFS = true;
                 } else if (arg.equals("-shrink")) {
                     shrinkSequenceData = true;
+                } else if (arg.equals("-no-vcf")) {
+                    noVCF = true;
                 } else {
                     exit("Error reading unknown input argument " + arg + ".");
                 }
@@ -261,24 +267,36 @@ public class Argon {
             exit("Error parsing input arguments.");
         }
 
+        if (!noVCF) {
+            for (int i = 0; i < sampleSizes.length; i++) {
+                if (sampleSizes[i] % 2 != 0) {
+                    exit("If the VCF file format is used, the number of samples should be even for all populations.");
+                }
+            }
+        }
+
         if ((specifiedMutRate || specifiedRecRate) && useMapFile) {
             exit("if a map is specified, the -rec and -mut flags cannot be used");
         }
 
-        if (doGeneConversion && minBlockSize > 1) {
+        if (doGeneConversion && minBlockSize
+                > 1) {
             exit("cannot use block size approximation (-len > 1) if gene conversion is simulated.");
         }
 
         verbose = verboseValue;
 
-        if (sampleSizes == null) {
+        if (sampleSizes
+                == null) {
             sampleSizes = new int[]{1000};
             totModernSamples = sampleSizes[0];
             numPops = 1;
         }
 
         int totSamples = 0;
-        for (int i = 0; i < sampleSizes.length; i++) {
+        for (int i = 0;
+                i < sampleSizes.length;
+                i++) {
             totSamples += sampleSizes[i];
         }
         DescendantsList.numSamples = totSamples;
@@ -393,7 +411,9 @@ public class Argon {
         minimumGeneConversionTractLengthGenetic = (int) (minimumGeneConversionTractLength * recRateFactor);
 
         thresholdForPrintingBooleanRatherThanList = totSamples / (1 + (int) Math.ceil(Math.log10(totSamples)));
-        System.out.println("Starting simulation. Parameters:");
+
+        System.out.println(
+                "Starting simulation. Parameters:");
 
         if (writeOutFiles) {
             String name = (gzipOutput) ? fileBase + ".map.gz" : fileBase + ".map";
@@ -409,16 +429,30 @@ public class Argon {
                 exit("could not open output stream for " + name);
             }
             if (printMUT) {
-                name = (gzipOutput) ? fileBase + ".mut.gz" : fileBase + ".mut";
-                try {
-                    MUToutput = new FileOutputStream(name);
-                } catch (FileNotFoundException e) {
-                    exit("file " + name + " could not be created.");
-                }
-                try {
-                    MUTwriter = (gzipOutput) ? new OutputStreamWriter(new GZIPOutputStream(MUToutput), "UTF-8") : new OutputStreamWriter(MUToutput);
-                } catch (IOException e) {
-                    exit("could not open output stream for " + name);
+                if (noVCF) {
+                    name = (gzipOutput) ? fileBase + ".mut.gz" : fileBase + ".mut";
+                    try {
+                        MUToutput = new FileOutputStream(name);
+                    } catch (FileNotFoundException e) {
+                        exit("file " + name + " could not be created.");
+                    }
+                    try {
+                        MUTwriter = (gzipOutput) ? new OutputStreamWriter(new GZIPOutputStream(MUToutput), "UTF-8") : new OutputStreamWriter(MUToutput);
+                    } catch (IOException e) {
+                        exit("could not open output stream for " + name);
+                    }
+                } else {
+                    name = (gzipOutput) ? fileBase + ".vcf.gz" : fileBase + ".vcf";
+                    try {
+                        MUToutput = new FileOutputStream(name);
+                    } catch (FileNotFoundException e) {
+                        exit("file " + name + " could not be created.");
+                    }
+                    try {
+                        MUTwriter = (gzipOutput) ? new OutputStreamWriter(new GZIPOutputStream(MUToutput), "UTF-8") : new OutputStreamWriter(MUToutput);
+                    } catch (IOException e) {
+                        exit("could not open output stream for " + name);
+                    }
                 }
             }
             if (printIBD && writeOutFiles) {
@@ -456,17 +490,23 @@ public class Argon {
         }
 
         ArrayList<HashMap<Long, Individual>> populationsChildren = new ArrayList<HashMap<Long, Individual>>();
-        for (int i = 0; i < demographicModel.getNumPopsAt(0); i++) {
+        for (int i = 0;
+                i < demographicModel.getNumPopsAt(
+                        0); i++) {
             populationsChildren.add(new HashMap<Long, Individual>());
         }
         ArrayList<HashMap<Long, Individual>> populationsParents = new ArrayList<HashMap<Long, Individual>>();
-        for (int i = 0; i < demographicModel.getNumPopsAt(1); i++) {
+        for (int i = 0;
+                i < demographicModel.getNumPopsAt(
+                        1); i++) {
             populationsParents.add(new HashMap<Long, Individual>());
         }
 
         ArrayList<Block> leaves = new ArrayList<Block>(totModernSamples);
         int sampleCnt = 0;
-        for (int i = 0; i < numPops; i++) {
+        for (int i = 0;
+                i < numPops;
+                i++) {
             HashMap<Long, Individual> pop = populationsChildren.get(i);
             for (int j = 1; j <= sampleSizes[i]; j++) {
                 Individual id = new Individual(j, genomeSizeGenetic);
@@ -502,7 +542,8 @@ public class Argon {
 
         printParams(showDefaultsAndExamples);
 
-        System.out.println("Simulating...");
+        System.out.println(
+                "Simulating...");
         while (coalescedBlocks != toCoalesce) {
             HashMap<Block, HashSet<Block>> childrenOfThisGeneration = new HashMap<Block, HashSet<Block>>();
             if (verbose || !quiet && (long) ((System.currentTimeMillis() - start) / 1000.0) > lastTime) {
@@ -757,7 +798,8 @@ public class Argon {
             System.out.println((System.currentTimeMillis() - timeB) / 1000.0 + " seconds.");
         }
 
-        System.out.print("\n" + roots.size() + " blocks\t");
+        System.out.print(
+                "\n" + roots.size() + " blocks\t");
 
         if (writeOutFiles) {
             try {
@@ -798,7 +840,8 @@ public class Argon {
 
         double ARG_runtime = (System.currentTimeMillis() - start) / 1000.0;
 
-        System.out.println("ARG runtime: " + ARG_runtime);
+        System.out.println(
+                "ARG runtime: " + ARG_runtime);
         start = System.currentTimeMillis();
 
         // for IBD printing
@@ -833,6 +876,7 @@ public class Argon {
             if (writeOutFiles) {
                 System.out.println();
             }
+            printVCFheader();
             for (Block currentRoot : roots) {
                 if (writeOutFiles || (!printMUT && (writeAFS || printAFS))) {
 //                    System.out.println();
@@ -1295,6 +1339,17 @@ public class Argon {
                 System.out.println("\t\t\t(Default = do not compress output; example: \"-gz\")");
             }
         }
+        if (noVCF) {
+            System.out.println("\t-no-vcf\t\tWill not use VCF file format for output.");
+            if (showDefaultsAndExamples) {
+                System.out.println("\t\t\t(Default = use VCF file format; example: \"-no-vcf\")");
+            }
+        } else {
+            System.out.println("\t-no-vcf\t\tWill use VCF file format for output.");
+            if (showDefaultsAndExamples) {
+                System.out.println("\t\t\t(Default = use VCF file format; example: \"-no-vcf\")");
+            }
+        }
         if (showDefaultsAndExamples) {
             System.out.println("\t-help\t\tPrinting parameter defaults and examples.");
             if (showDefaultsAndExamples) {
@@ -1359,20 +1414,97 @@ public class Argon {
         }
         if (mutations > 0 && freq >= MAF) {
             StringBuffer list;
-            if (shrinkSequenceData && myList.getSize() < thresholdForPrintingBooleanRatherThanList) {
-                list = myList.getSetList();
-            } else {
-                list = myList.getBinaryList();
-            }
-            if (writeOutFiles && printMUT) {
-                try {
-                    MUTwriter.write(fromPhys + "\t" + toPhys + "\t" + mutations + "\t" + freq + "\t" + list + "\n");
-                } catch (IOException ex) {
-                    Logger.getLogger(Argon.class.getName()).log(Level.SEVERE, null, ex);
+            if (noVCF) { // this format is obsolete, should remove it
+                if (shrinkSequenceData && myList.getSize() < thresholdForPrintingBooleanRatherThanList) {
+                    list = myList.getSetList();
+                } else {
+                    list = myList.getBinaryList();
                 }
-            } else if (printMUT) {
-                System.out.println("MUT\t" + fromPhys + "\t" + toPhys + "\t" + mutations + "\t" + freq + "\t" + list);
+                if (writeOutFiles && printMUT) {
+                    try {
+                        MUTwriter.write(fromPhys + "\t" + toPhys + "\t" + mutations + "\t" + freq + "\t" + list + "\n");
+
+                    } catch (IOException ex) {
+                        Logger.getLogger(Argon.class
+                                .getName()).log(Level.SEVERE, null, ex);
+                    }
+                } else if (printMUT) {
+                    System.out.println("MUT\t" + fromPhys + "\t" + toPhys + "\t" + mutations + "\t" + freq + "\t" + list);
+                }
+            } else {
+                for (int k = 0; k < mutations; k++) {
+                    list = myList.getBinaryList();
+                    int pos = fromPhys + generator.nextInt(toPhys - fromPhys + 1);
+                    StringBuilder outString = new StringBuilder();
+                    outString.append(chromosome).append("\t").append(pos).append("\tsnp").append(pos).append("\t1\t2\t.\t.\tPR\tGT");
+                    for (int i = 0; i < list.length(); i += 2) {
+                        outString.append("\t").append(list.charAt(i)).append("|").append(list.charAt(i + 1));
+                    }
+                    outString.append("\n");
+                    if (writeOutFiles && printMUT) {
+                        try {
+                            MUTwriter.write(outString.toString());
+
+                        } catch (IOException ex) {
+                            Logger.getLogger(Argon.class
+                                    .getName()).log(Level.SEVERE, null, ex);
+                        }
+                    } else if (printMUT) {
+                        System.out.print("MUT\t" + outString.toString());
+                    }
+                }
             }
+        }
+    }
+
+    public static void printVCFheader() {
+        SimpleDateFormat sdate = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        Date date = new Date();
+        String datestr = "##fileDate=[" + sdate.format(date) + "]";
+        String versionstr = "##source=ARGONv" + version;
+        if (writeOutFiles && printMUT) {
+            try {
+                MUTwriter.write("##fileformat=VCFv4.2\n");
+                MUTwriter.write(datestr + "\n");
+                MUTwriter.write(versionstr + "\n");
+                MUTwriter.write("##contig=<ID=" + chromosome + ",length=" + genomeSizePhysical + ">\n");
+                MUTwriter.write("##INFO=<ID=PR,Number=0,Type=Flag,Description=\"Simulated data, reference alleles are ancestral\"\n");
+                MUTwriter.write("##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n");
+                MUTwriter.write("#CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT");
+                for (int i = 0; i < sampleSizes.length; i++) {
+                    int cnt = 0;
+                    int popInd = i + 1;
+                    for (int j = 0; j < sampleSizes[i]; j += 2) {
+                        cnt++;
+                        MUTwriter.write("\t" + popInd + "_" + cnt);
+                    }
+                }
+                MUTwriter.write("\n");
+
+            } catch (IOException ex) {
+                Logger.getLogger(Argon.class
+                        .getName()).log(Level.SEVERE, null, ex);
+            }
+        } else if (printMUT) {
+            System.out.print("MUT ##fileformat=VCFv4.2\n");
+            System.out.print("MUT " + datestr + "\n");
+            System.out.print("MUT " + versionstr + "\n");
+            System.out.print("MUT ##contig=<ID=" + chromosome + ",length=" + genomeSizePhysical + ">\n");
+            System.out.print("MUT ##INFO=<ID=PR,Number=0,Type=Flag,Description=\"Simulated data, reference alleles are ancestral\"\n");
+            System.out.print("MUT ##FORMAT=<ID=GT,Number=1,Type=String,Description=\"Genotype\">\n");
+            System.out.print("MUT #CHROM\tPOS\tID\tREF\tALT\tQUAL\tFILTER\tINFO\tFORMAT");
+            for (int i = 0; i < sampleSizes.length; i++) {
+                if (sampleSizes[i] % 2 != 0) {
+                    exit("If the VCF file format is used, the number of samples should be even for all populations.");
+                }
+                int cnt = 0;
+                int popInd = i + 1;
+                for (int j = 0; j < sampleSizes[i]; j += 2) {
+                    cnt++;
+                    System.out.print("\t" + popInd + "_" + cnt);
+                }
+            }
+            System.out.print("\n");
         }
     }
 
