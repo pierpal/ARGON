@@ -875,7 +875,10 @@ public class Argon {
             if (writeOutFiles) {
                 System.out.println();
             }
-            printVCFheader();
+            if (!noVCF) {
+                printVCFheader();
+            }
+            
             for (Block currentRoot : roots) {
                 if (writeOutFiles || (!printMUT && (writeAFS || printAFS))) {
 //                    System.out.println();
