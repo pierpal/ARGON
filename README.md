@@ -1,6 +1,6 @@
 # ARGON
 
-**Current version:** 0.1.160113 (January 13, 2016)<br />
+**Current version:** 0.1.160205 (February 05, 2016)<br />
 **Reference:** [P.F. Palamara, “ARGON: fast, whole-genome simulation of the discrete time Wright-Fisher process”, BioRxiv 2016, doi: http://dx.doi.org/10.1101/036376](http://biorxiv.org/content/early/2016/01/12/036376).
 
 ARGON simulates the discrete time Wright Fisher process (DTWF) backwards in time. The coalescent is equivalent to the DTWF process if the sample size is small compared to the effective population size, but will deviate from it for large sample size ([Wakeley and Takahashi, MBE 2003](http://www.ncbi.nlm.nih.gov/pubmed/12598687); [Bhaskar, Clark and Song, PNAS 2014](http://www.ncbi.nlm.nih.gov/pubmed/24469801)). ARGON supports arbitrary demographic history, migration, variable mutation/recombination rates and gene conversion, and efficiently outputs pairwise identical-by-descent (IBD) sharing data.
@@ -176,7 +176,11 @@ If the “-help” flag is activated, default values and a few examples of the a
 
 ###Output format
 
-**Sequence data**
+**VCF output**
+
+ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID_indID", where the ID of populations and individuals are integer numbers starting from 1. Diploid individuals are created by merging two haploid individuals, and phase information is maintained (using the "|" separator for the alleles). The full specification of the VCF 4.2 format is available [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf).
+
+**Old format (still available with -no-vcf flag)**
 
 Sequence data will be written to a “.mut” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
 
