@@ -267,14 +267,6 @@ public class Argon {
             exit("Error parsing input arguments.");
         }
 
-        if (!noVCF) {
-            for (int i = 0; i < sampleSizes.length; i++) {
-                if (sampleSizes[i] % 2 != 0) {
-                    exit("If the VCF file format is used, the number of samples should be even for all populations.");
-                }
-            }
-        }
-
         if ((specifiedMutRate || specifiedRecRate) && useMapFile) {
             exit("if a map is specified, the -rec and -mut flags cannot be used");
         }
@@ -286,11 +278,18 @@ public class Argon {
 
         verbose = verboseValue;
 
-        if (sampleSizes
-                == null) {
+        if (sampleSizes == null) {
             sampleSizes = new int[]{1000};
             totModernSamples = sampleSizes[0];
             numPops = 1;
+        }
+
+        if (!noVCF) {
+            for (int i = 0; i < sampleSizes.length; i++) {
+                if (sampleSizes[i] % 2 != 0) {
+                    exit("If the VCF file format is used, the number of samples should be even for all populations.");
+                }
+            }
         }
 
         int totSamples = 0;
