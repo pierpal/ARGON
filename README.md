@@ -17,42 +17,47 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 
 ### Overview of commands
 
+###### demographic model, sample size, chromosome length
 	-N	        Population size or file.
 			    (Default = 1000; example: "-N 10000" or “-N model.txt”)
 	-pop		Number of samples.
 		    	(Default = 1 pop, 1000 samples; example: "-pop 1 1000" or "-pop 2 1000 2000")
-	-len		Minimum block size.
-			    (Default = 1; example: "-len 1" or "-len 10000")
 	-size		Chromosome length (Mb).
 			    (Default = 10 cM, 10 Mb; example: "-size 10")
+###### mutation, recombination, and gene conversion rates
 	-rec		Recombination rate per base pair.
 		    	(Default = 1.0E-8; example: "-rec 1E-8")
 	-mut		Mutation rate per base pair.
 		    	(Default = 1.65E-8; example: "-mut 1.65E-8")
 	-map		Recombination/mutation map file.
 	    		(Default = no map; example: "-map map.txt")
-	-seed		Random seed.
-	    		(Default = random; example: "-seed 1234")
-	-seq		Minimum allele frequency for sequence output.
-	    		(Default = print sequence, MAF = 0.0; example: "-seq 0.0")
-	-out		Output files prefix.
-		    	(Default = output to files ARGON.*; example: "-out ARGON")
-	-screen	    Activate to write output to screen.
-		    	(Default = output to files; example: "-screen")
-	-IBD		Output IBD longer than specified cM threshold.
-	    		(Default = do not print IBD; example: "-IBD 1.0")
 	-GC	  	    Non-crossover gene conversion (NCOGC).
 		    	(Default = non-crossover GC disabled; example: "-GC 1.0")
 	-meanGC	    Mean NCOGC tract length.
 		    	(Default = 300; example: "-meanGC 300")
 	-minGC	    Minimum NCOGC tract length.
 		    	(Default = 0; example: "-minGC 0")
-	-shrink	    Output sequence of mutations with small DAF as list.
-		    	(Default = do not shrink sequence; example: "-shrink")
-	-quiet	    Suppress progress details.
-		    	(Default = print progress; example: "-quiet")
+###### output options
+	-out		Output files prefix.
+		    	(Default = output to files ARGON.*; example: "-out ARGON")
+	-screen	    Activate to write output to screen.
+		    	(Default = output to files; example: "-screen")
+	-seq		Minimum allele frequency for sequence output.
+	    		(Default = print sequence, MAF = 0.0; example: "-seq 0.0")
+	-IBD		Output IBD longer than specified cM threshold.
+	    		(Default = do not print IBD; example: "-IBD 1.0")
 	-gz	  	    Compress output.
 		    	(Default = do not compress output; example: "-gz")
+	-quiet	    Suppress progress details.
+		    	(Default = print progress; example: "-quiet")
+	-shrink	    Output sequence of mutations with small DAF as list.
+		    	(Default = do not shrink sequence; example: "-shrink")
+###### approximation
+	-len		Minimum block size.
+			    (Default = 1; example: "-len 1" or "-len 10000")
+###### other options
+	-seed		Random seed.
+	    		(Default = random; example: "-seed 1234")
 	-help		Print parameter defaults and examples.
 		        (Default = do not print parameter defaults and examples; example: "-help")
 
