@@ -212,7 +212,7 @@ where “ID1” and “ID2” specify the IDs of the individuals sharing an IBD 
 -	Complete code for Newick tree output of ARG marginal trees.
 -	Enable specifying piecewise constant/exponential periods in demographic file format (fewer lines). May integrate with the [Demographic Language Parser](https://github.com/pierpal/DemographicLanguageParser).
 -	Enable sampling individuals from past time points.
--	Code additional output formats.
+-	Code additional output formats ([VCF here](https://github.com/pierpal/ARGON/tree/vcf-out)).
 
 **Known issues**
 -	If the recombination map in input is extremely fine grained, minor rounding issues may occur. This should not be a problem for most analyses.
