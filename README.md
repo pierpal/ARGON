@@ -38,6 +38,8 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 	-minGC	    Minimum NCOGC tract length.
 		    	(Default = 0; example: "-minGC 0")
 ###### output options
+(you may want to use [this branch](https://github.com/pierpal/ARGON/tree/vcf-out) for VCF format output)
+
 	-out		Output files prefix.
 		    	(Default = output to files ARGON.*; example: "-out ARGON")
 	-screen	    Activate to write output to screen.
@@ -182,6 +184,8 @@ If the “-help” flag is activated, default values and a few examples of the a
 ###Output format
 
 **Sequence data**
+
+(you may want to use [this branch](https://github.com/pierpal/ARGON/tree/vcf-out) for VCF format output)
 
 Sequence data will be written to a “.mut” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
 
