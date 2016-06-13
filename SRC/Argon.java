@@ -202,7 +202,7 @@ public class Argon {
         this.minimumGeneConversionTractLength = minimumGeneConversionTractLengthArg;
         this.constantPopSize = constantPopSizeArg;
         this.seed = seedArg;
-        
+
         if (shrinkSequenceData && !seqOutFormat) {
             exit("\"-shrink\" can only be used with -seq-out.");
         }
@@ -1182,7 +1182,7 @@ public class Argon {
             }
         }
         if (printMUT) {
-            String format = (!seqOutFormat && !hapsOutFormat)? "VCF" : (seqOutFormat)? "seq" : "haps/samples";
+            String format = (!seqOutFormat && !hapsOutFormat) ? "VCF" : (seqOutFormat) ? "seq" : "haps/samples";
             System.out.println("\t-seq\t\tWill print sequence (" + format + " format). Minimum allele frequency " + MAF + ".");
             if (showDefaultsAndExamples) {
                 System.out.println("\t\t\t(Default = print sequence, MAF = 0.0; example: \"-seq 0.0\")");
@@ -1419,7 +1419,7 @@ public class Argon {
                         }
                     } else if (printMUT) {
                         if (outputAlleleAge) {
-                            System.out.print("MUT\t" + str);
+                            System.out.print("MUTa\t" + str);
                             int mutAge = myGen + generator.nextInt(distanceToFather) + 1;
                             System.out.print("AGE\t" + chromosome + "\t" + SNPname + "\t" + pos + "\t" + fromPhys + "\t" + toPhys + "\t" + mutAge + "\t" + myGen + "\t" + parentGen);
                         }
@@ -1515,20 +1515,20 @@ public class Argon {
     }
 
     public void printSamplesFile() {
-        String name = fileBase + ".samples";
-        FileOutputStream samplesOutput = null;
-        OutputStreamWriter samplesWriter = null;
-        try {
-            samplesOutput = new FileOutputStream(name);
-        } catch (FileNotFoundException e) {
-            exit("file " + name + " could not be created.");
-        }
-        try {
-            samplesWriter = new OutputStreamWriter(samplesOutput);
-        } catch (Exception e) {
-            exit("could not open output stream for " + name);
-        }
         if (writeOutFiles && printMUT) {
+            String name = fileBase + ".samples";
+            FileOutputStream samplesOutput = null;
+            OutputStreamWriter samplesWriter = null;
+            try {
+                samplesOutput = new FileOutputStream(name);
+            } catch (FileNotFoundException e) {
+                exit("file " + name + " could not be created.");
+            }
+            try {
+                samplesWriter = new OutputStreamWriter(samplesOutput);
+            } catch (Exception e) {
+                exit("could not open output stream for " + name);
+            }
             try {
                 samplesWriter.write("ID_1 ID_2 missing\n");
                 samplesWriter.write("0 0 0\n");
@@ -1545,6 +1545,12 @@ public class Argon {
             } catch (IOException ex) {
                 Logger.getLogger(Argon.class.getName()).log(Level.SEVERE, null, ex);
             }
+            try {
+                samplesWriter.flush();
+                samplesWriter.close();
+            } catch (IOException ex) {
+                Logger.getLogger(Argon.class.getName()).log(Level.SEVERE, null, ex);
+            }
         } else if (printMUT) {
             System.out.print("MUT ID_1 ID_2 missing\n");
             System.out.print("MUT 0 0 0\n");
@@ -1558,12 +1564,6 @@ public class Argon {
                     System.out.print("MUT " + ID1 + " " + ID2 + " 0\n");
                 }
             }
-        }
-        try {
-            samplesWriter.flush();
-            samplesWriter.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Argon.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
 
