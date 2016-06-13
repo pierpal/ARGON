@@ -1,7 +1,7 @@
 # ARGON
 
-**Current version:** 0.1.160113 (January 13, 2016). NOTE: This version (0.1.160205) is experimental. Only use for VCF file output until this feature is integrated in the main branch, as it is currently slower.<br />
-**Reference:** [P.F. Palamara, “ARGON: fast, whole-genome simulation of the discrete time Wright-Fisher process”, BioRxiv 2016, doi: http://dx.doi.org/10.1101/036376](http://biorxiv.org/content/early/2016/01/12/036376).
+**Current version:** 0.1.160415 (April 15, 2016).
+**Reference:** P.F. Palamara, “ARGON: fast, whole-genome simulation of the discrete time Wright-Fisher process”, Bioinformatics 2016. [Preprint, doi: http://dx.doi.org/10.1101/036376](http://biorxiv.org/content/early/2016/01/12/036376).
 
 ARGON simulates the discrete time Wright Fisher process (DTWF) backwards in time. The coalescent is equivalent to the DTWF process if the sample size is small compared to the effective population size, but will deviate from it as the sample size increases ([Wakeley and Takahashi, MBE 2003](http://www.ncbi.nlm.nih.gov/pubmed/12598687); [Bhaskar, Clark and Song, PNAS 2014](http://www.ncbi.nlm.nih.gov/pubmed/24469801)). ARGON supports arbitrary demographic history, migration, variable mutation/recombination rates and gene conversion, and efficiently outputs pairwise identical-by-descent (IBD) sharing data.
 
@@ -38,20 +38,28 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 	-minGC	    Minimum NCOGC tract length.
 		    	(Default = 0; example: "-minGC 0")
 ###### output options
-	-out		Output files prefix.
-		    	(Default = output to files ARGON.*; example: "-out ARGON")
-	-screen	    Activate to write output to screen.
-		    	(Default = output to files; example: "-screen")
-	-seq		Minimum allele frequency for sequence output.
-	    		(Default = print sequence, MAF = 0.0; example: "-seq 0.0")
-	-IBD		Output IBD longer than specified cM threshold.
-	    		(Default = do not print IBD; example: "-IBD 1.0")
-	-gz	  	    Compress output.
-		    	(Default = do not compress output; example: "-gz")
-	-quiet	    Suppress progress details.
-		    	(Default = print progress; example: "-quiet")
-	-shrink	    Output sequence of mutations with small DAF as list.
-		    	(Default = do not shrink sequence; example: "-shrink")
+	-out		Will write output in files ARGON.*
+			(Default = output to files ARGON.*; example: "-out ARGON")
+	-screen		Not active (will write to file instead).
+			(Default = output to files; example: "-screen")
+	-seq		Will print sequence (VCF format). Minimum allele frequency 0.0.
+			(Default = print sequence, MAF = 0.0; example: "-seq 0.0")
+	-seq-out	Will not use seq file format for output.
+			(Default = use VCF file format; example: "-seq-out")
+	-haps-out	Will not use haps/samples file format for output.
+			(Default = use VCF file format; example: "-haps-out")
+	-IBD		Will not output IBD.
+			(Default = do not print IBD; example: "-IBD 1.0")
+	-shrink		Not active. Will always output sequence as binary list.
+			(Default = do not shrink sequence; example: "-shrink")
+	-quiet		Not active. Will print progress.
+			(Default = print progress; example: "-quiet")
+	-age		Will not output age of alleles.
+			(Default = do not output age of alleles; example: "-age")
+	-gz		Will not compress output.
+			(Default = do not compress output; example: "-gz")
+	-trees		Will not output Newick trees.
+			(Default = do not output trees; example: "-trees")
 ###### approximation
 	-len		Minimum block size.
 			    (Default = 1; example: "-len 1" or "-len 10000")
@@ -158,7 +166,7 @@ Non-crossover gene conversion is activated using the “-GC” flag, followed by
 
 -shrink&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;(Default = do not shrink sequence; example: "-shrink")
 
-The "-shrink" flag causes mutations with small derived allele frequency to be output using a different format. This results in smaller sequencing data files. See below for format details.
+The "-shrink" flag causes mutations with small derived allele frequency to be output using a different format. This results in smaller sequencing data files. It can only be used with the "-seq-out" flag. See below for format details.
 
 **Quiet output**
 
@@ -182,15 +190,37 @@ If the “-help” flag is activated, default values and a few examples of the a
 
 **VCF output**
 
-ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID_indID", where the ID of populations and individuals are integer numbers starting from 1. Diploid individuals are created by merging two haploid individuals, and phase information is maintained (using the "|" separator for the alleles). The full specification of the VCF 4.2 format is available [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf).
+ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID_indID", where the ID of populations and individuals are integer numbers starting from 1. Diploid individuals are created by merging two haploid individuals, and phase information is maintained (using the "|" separator for the alleles). The full specification of the VCF 4.2 format is available [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf). The VCF format is accepted in input by [Plink 2](https://www.cog-genomics.org/plink2).
 
-**Old format (still available with -no-vcf flag)**
+**Haps/samples output (-haps-out flag)**
+
+(See also [this](http://www.shapeit.fr/pages/m02_formats/hapssample.html) format reference). Sequence data will be written to a “.hap” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
+
+     SNPID1 SNPID2 POS 1 2 ID1_0 ID1_1 ID2_0 ID2_1 ...
+
+where SNPID1 and SNPID2 are identifiers for the variant; POS is the physical position; 1 2 represents the allele values (1=ancestral, 2=derived); and ID1_0 ID1_1 ID2_0 ID2_1 is a list of 1s and 2s corresponding to each (haploid/phased) individual chromosome. The samples file has format
+
+     ID_1 ID_2 missing
+     0 0 0
+     FAM_ID_1 IND_ID_1 0
+     FAM_ID_2 IND_ID_2 0
+     ...
+
+where the first two line are header information, and each following line contains family ID, individual ID, fraction missing (always 0 in simulation output). You can convert output from the haps/samples format to vcf using the "--hapsample2vcf" in [BCFTools](https://samtools.github.io/bcftools/bcftools.html). The VCF format is accepted in input by [Plink 2](https://www.cog-genomics.org/plink2).
+
+**Seq output (-seq-out flag)**
 
 Sequence data will be written to a “.mut” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
 
     posFrom  posTo  numMut  DAF  sequence
 
 The “posFrom” and “posTo” fields specify the physical range where the sampled mutation(s) occurred. This corresponds to the physical range for the ARG branch where the mutation(s) occurred. A specific location for the mutation(s) can be obtained by uniform sampling within the range. The “numMut” field specifies the number of mutations that affected the ARG branch. If this number if greater than 1, it is sufficient to uniformly sample additional mutations within the physical range. The frequency and sequence for all sampled mutations from the same line will be identical. The “DAF” field specifies the derived allele frequency for the mutation(s) (i.e. the number of samples carrying a derived allele). The “sequence” field contains the sequence data. A “0” indicates the corresponding haploid individual does not carry a derived allele, while “1” indicates the individual is a carrier for the derived allele. If the "-shrink" flag was activated, the sequence field for mutations with a small DAF will be output as a list of individuals carrying the derived allele instead of a single string of 0's and 1's. Because only a few individual IDs will be included in the list, this will result in smaller output.
+
+**Newick trees output**
+
+The -trees flag causes marginal Newick trees to be output in a ".trees" file. Each line has format
+
+    treeHeight  posFrom  posTo NewickTree
 
 **Marginal tree intervals**
 
@@ -208,10 +238,7 @@ where “ID1” and “ID2” specify the IDs of the individuals sharing an IBD 
 
 **TODO list**
 
--	Complete code for Newick tree output of ARG marginal trees.
 -	Enable specifying piecewise constant/exponential periods in demographic file format (fewer lines). May integrate with the [Demographic Language Parser](https://github.com/pierpal/DemographicLanguageParser).
--	Enable sampling individuals from past time points.
--	Code additional output formats.
 
 **Known issues**
 -	If the recombination map in input is extremely fine grained, minor rounding issues may occur. This should not be a problem for most analyses.
@@ -221,5 +248,6 @@ For bug reports or suggestions, please contact me at ppalama AT hsph DOT harvard
 
 ###Version history
 
+- June 13 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Uploading release code and binaries (160415).
 - Jan 13 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fixed recombination problem. Back to normal speed/memory usage in 160113.
 - Jan 10 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ARGON 0.1.160101 released.
