@@ -226,6 +226,14 @@ The -trees flag causes marginal [Newick trees](http://evolution.genetics.washing
 
 The “.map” file contains a list of “breakpoints”. These indicate the starting position of each marginal tree of the sampled ARG. If the output is written to screen, the string “BREAKPOINTS” will introduce this list on stdout.
 
+**Allele age (-age flag)**
+
+Each line of the ".age" file contains one allele age, with format
+
+    chr SNP_name SNP_pos branchPhysStart branchPhysEnd mutAge branchGenStart branchGenEnd
+
+where mutAge is the age of the allele, and branchPhysStart, branchPhysEnd, branchGenStart, branchGenEnd are the physical and generation start/end coordinates of the ARG branch that was hit by the mutation. SNP_name SNP_pos are omitted if the seq output is used.
+
 **IBD output**
 
 The IBD output will be written to a “.ibd” file (or to screen, if the “-screen” flag is active, with the “IBD” string prepended to each relevant line). Lines will have format
