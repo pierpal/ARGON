@@ -1,6 +1,6 @@
 # ARGON
 
-**Current version:** 0.1.160415 (April 15, 2016).
+**Current version:** 0.1.160415 (April 15, 2016).<br>
 **Reference:** P.F. Palamara, “ARGON: fast, whole-genome simulation of the discrete time Wright-Fisher process”, Bioinformatics 2016. [Preprint, doi: http://dx.doi.org/10.1101/036376](http://biorxiv.org/content/early/2016/01/12/036376).
 
 ARGON simulates the discrete time Wright Fisher process (DTWF) backwards in time. The coalescent is equivalent to the DTWF process if the sample size is small compared to the effective population size, but will deviate from it as the sample size increases ([Wakeley and Takahashi, MBE 2003](http://www.ncbi.nlm.nih.gov/pubmed/12598687); [Bhaskar, Clark and Song, PNAS 2014](http://www.ncbi.nlm.nih.gov/pubmed/24469801)). ARGON supports arbitrary demographic history, migration, variable mutation/recombination rates and gene conversion, and efficiently outputs pairwise identical-by-descent (IBD) sharing data.
