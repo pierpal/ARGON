@@ -38,27 +38,27 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 	-minGC	    Minimum NCOGC tract length.
 		    	(Default = 0; example: "-minGC 0")
 ###### output options
-	-out		Will write output in files ARGON.*
+	-out		Output files prefix.
 			(Default = output to files ARGON.*; example: "-out ARGON")
-	-screen		Not active (will write to file instead).
+	-screen		Activate to write output to screen.
 			(Default = output to files; example: "-screen")
-	-seq		Will print sequence (VCF format). Minimum allele frequency 0.0.
+	-seq		Minimum allele frequency for sequence output.
 			(Default = print sequence, MAF = 0.0; example: "-seq 0.0")
-	-seq-out	Will not use seq file format for output.
+	-seq-out	Activate seq output format
 			(Default = use VCF file format; example: "-seq-out")
-	-haps-out	Will not use haps/samples file format for output.
+	-haps-out	Activate haps/samples output format
 			(Default = use VCF file format; example: "-haps-out")
-	-IBD		Will not output IBD.
+	-IBD		Output IBD longer than specified cM threshold.
 			(Default = do not print IBD; example: "-IBD 1.0")
-	-shrink		Not active. Will always output sequence as binary list.
+	-shrink		Output sequence of mutations with small DAF as list (only for seq format).
 			(Default = do not shrink sequence; example: "-shrink")
-	-quiet		Not active. Will print progress.
+	-quiet		Suppress progress details.
 			(Default = print progress; example: "-quiet")
-	-age		Will not output age of alleles.
+	-age		Output age of alleles.
 			(Default = do not output age of alleles; example: "-age")
-	-gz		Will not compress output.
+	-gz		Compress output.
 			(Default = do not compress output; example: "-gz")
-	-trees		Will not output Newick trees.
+	-trees		Output Newick trees.
 			(Default = do not output trees; example: "-trees")
 ###### approximation
 	-len		Minimum block size.
