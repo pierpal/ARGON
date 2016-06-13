@@ -92,6 +92,35 @@ public final class DescendantsList {
         }
     }
 
+    public StringBuffer getBinaryListWithSpaces() {
+        if (onlyStoreNumber) {
+            // NOT IMPLEMENTED
+            return null;
+        } else {
+            if (list != null) {
+                StringBuffer listBuff = new StringBuffer();
+                for (int i = 1; i <= numSamples; i++) {
+                    listBuff.append((list.contains(i) ? 1 : 0));
+                    listBuff.append(" ");
+                }
+                if (listBuff.length() > 0) {
+                    listBuff.deleteCharAt(listBuff.length() - 1);
+                }
+                return listBuff;
+            } else {
+                StringBuffer listBuff = new StringBuffer();
+                for (int i = 0; i < numSamples; i++) {
+                    listBuff.append((set.get(i)) ? 1 : 0);
+                    listBuff.append(" ");
+                }
+                if (listBuff.length() > 0) {
+                    listBuff.deleteCharAt(listBuff.length() - 1);
+                }
+                return listBuff;
+            }
+        }
+    }
+
     public BitSet transformToBitSet() {
         if (onlyStoreNumber) {
             // NOT IMPLEMENTED

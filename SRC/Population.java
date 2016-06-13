@@ -16,7 +16,7 @@ public class Population {
     ArrayList<double[][]> samplingProbabilities = new ArrayList<double[][]>();
     ArrayList<ArrayList<Long>> populationIDOffsets = new ArrayList<ArrayList<Long>>();
 
-    Population(String populationFile) throws Exception {
+    Population(String populationFile, boolean quiet) throws Exception {
         FileInputStream fstream = new FileInputStream(populationFile);
         DataInputStream in = new DataInputStream(fstream);
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
@@ -48,7 +48,7 @@ public class Population {
                 }
                 populationIDOffsets.add(currOffsets);
                 populationSizes.add(thisGenSizes);
-                if (!Argon.quiet) {
+                if (!quiet) {
                     System.out.println("Population sizes at generation " + gen + " are " + populationSizes.get(populationSizes.size() - 1));
                 }
             } else {
@@ -98,7 +98,7 @@ public class Population {
                     System.err.println("Warning: some migration matrix rows did not sum to 1.0. Normalized.");
                 }
                 samplingProbabilities.add(migrationMatrix);
-                if (!Argon.quiet) {
+                if (!quiet) {
                     printMatrix(migrationMatrix);
                 }
             }
@@ -110,7 +110,7 @@ public class Population {
         if (populationSizes.get(populationSizes.size() - 1).size() == 1) {
             samplingProbabilities.add(new double[][]{{1.}});
         }
-        if (!Argon.quiet) {
+        if (!quiet) {
             System.out.print("Population sizes from generation " + (populationSizes.size()) + " on are " + populationSizes.get(populationSizes.size() - 1) + ". ");
             printMatrix(getSamplingProbabilities(populationSizes.size()));
             System.out.println();
