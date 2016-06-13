@@ -1,9 +1,9 @@
 # ARGON
 
-**Current version:** 0.1.160113 (January 13, 2016)<br />
+**Current version:** 0.1.160113 (January 13, 2016). NOTE: This version (0.1.160205) is experimental. Only use for VCF file output until this feature is integrated in the main branch, as it is currently slower.<br />
 **Reference:** [P.F. Palamara, “ARGON: fast, whole-genome simulation of the discrete time Wright-Fisher process”, BioRxiv 2016, doi: http://dx.doi.org/10.1101/036376](http://biorxiv.org/content/early/2016/01/12/036376).
 
-ARGON simulates the discrete time Wright Fisher process (DTWF) backwards in time. The coalescent is equivalent to the DTWF process if the sample size is small compared to the effective population size, but will deviate from it for large sample size ([Wakeley and Takahashi, MBE 2003](http://www.ncbi.nlm.nih.gov/pubmed/12598687); [Bhaskar, Clark and Song, PNAS 2014](http://www.ncbi.nlm.nih.gov/pubmed/24469801)). ARGON supports arbitrary demographic history, migration, variable mutation/recombination rates and gene conversion, and efficiently outputs pairwise identical-by-descent (IBD) sharing data.
+ARGON simulates the discrete time Wright Fisher process (DTWF) backwards in time. The coalescent is equivalent to the DTWF process if the sample size is small compared to the effective population size, but will deviate from it as the sample size increases ([Wakeley and Takahashi, MBE 2003](http://www.ncbi.nlm.nih.gov/pubmed/12598687); [Bhaskar, Clark and Song, PNAS 2014](http://www.ncbi.nlm.nih.gov/pubmed/24469801)). ARGON supports arbitrary demographic history, migration, variable mutation/recombination rates and gene conversion, and efficiently outputs pairwise identical-by-descent (IBD) sharing data.
 
 ## Usage
 
@@ -17,45 +17,49 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 
 ### Overview of commands
 
+###### demographic model, sample size, chromosome length
 	-N	        Population size or file.
 			    (Default = 1000; example: "-N 10000" or “-N model.txt”)
 	-pop		Number of samples.
 		    	(Default = 1 pop, 1000 samples; example: "-pop 1 1000" or "-pop 2 1000 2000")
-	-len		Minimum block size.
-			    (Default = 1; example: "-len 1" or "-len 10000")
 	-size		Chromosome length (Mb).
 			    (Default = 10 cM, 10 Mb; example: "-size 10")
+###### mutation, recombination, and gene conversion rates
 	-rec		Recombination rate per base pair.
 		    	(Default = 1.0E-8; example: "-rec 1E-8")
 	-mut		Mutation rate per base pair.
 		    	(Default = 1.65E-8; example: "-mut 1.65E-8")
 	-map		Recombination/mutation map file.
 	    		(Default = no map; example: "-map map.txt")
-	-seed		Random seed.
-	    		(Default = random; example: "-seed 1234")
-	-seq		Minimum allele frequency for sequence output.
-	    		(Default = print sequence, MAF = 0.0; example: "-seq 0.0")
-	-out		Output files prefix.
-		    	(Default = output to files ARGON.*; example: "-out ARGON")
-	-screen	    Activate to write output to screen.
-		    	(Default = output to files; example: "-screen")
-	-IBD		Output IBD longer than specified cM threshold.
-	    		(Default = do not print IBD; example: "-IBD 1.0")
 	-GC	  	    Non-crossover gene conversion (NCOGC).
 		    	(Default = non-crossover GC disabled; example: "-GC 1.0")
 	-meanGC	    Mean NCOGC tract length.
 		    	(Default = 300; example: "-meanGC 300")
 	-minGC	    Minimum NCOGC tract length.
 		    	(Default = 0; example: "-minGC 0")
-	-shrink	    Output sequence of mutations with small DAF as list.
-		    	(Default = do not shrink sequence; example: "-shrink")
-	-quiet	    Suppress progress details.
-		    	(Default = print progress; example: "-quiet")
+###### output options
+	-out		Output files prefix.
+		    	(Default = output to files ARGON.*; example: "-out ARGON")
+	-screen	    Activate to write output to screen.
+		    	(Default = output to files; example: "-screen")
+	-seq		Minimum allele frequency for sequence output.
+	    		(Default = print sequence, MAF = 0.0; example: "-seq 0.0")
+	-IBD		Output IBD longer than specified cM threshold.
+	    		(Default = do not print IBD; example: "-IBD 1.0")
 	-gz	  	    Compress output.
 		    	(Default = do not compress output; example: "-gz")
+	-quiet	    Suppress progress details.
+		    	(Default = print progress; example: "-quiet")
+	-shrink	    Output sequence of mutations with small DAF as list.
+		    	(Default = do not shrink sequence; example: "-shrink")
+###### approximation
+	-len		Minimum block size.
+			    (Default = 1; example: "-len 1" or "-len 10000")
+###### other options
+	-seed		Random seed.
+	    		(Default = random; example: "-seed 1234")
 	-help		Print parameter defaults and examples.
 		        (Default = do not print parameter defaults and examples; example: "-help")
-
 
 ### Description of command line options
 
@@ -176,7 +180,11 @@ If the “-help” flag is activated, default values and a few examples of the a
 
 ###Output format
 
-**Sequence data**
+**VCF output**
+
+ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID_indID", where the ID of populations and individuals are integer numbers starting from 1. Diploid individuals are created by merging two haploid individuals, and phase information is maintained (using the "|" separator for the alleles). The full specification of the VCF 4.2 format is available [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf).
+
+**Old format (still available with -no-vcf flag)**
 
 Sequence data will be written to a “.mut” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
 
