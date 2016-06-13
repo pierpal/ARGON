@@ -218,7 +218,7 @@ The “posFrom” and “posTo” fields specify the physical range where the sa
 
 **Newick trees output**
 
-The -trees flag causes marginal Newick trees to be output in a ".trees" file. Each line has format
+The -trees flag causes marginal [Newick trees](http://evolution.genetics.washington.edu/phylip/newicktree.html) to be output in a ".trees" file. Each line has format
 
     treeHeight  posFrom  posTo NewickTree
 
