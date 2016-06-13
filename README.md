@@ -198,7 +198,7 @@ ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID
 
      SNPID1 SNPID2 POS 1 2 ID1_0 ID1_1 ID2_0 ID2_1 ...
 
-where SNPID1 and SNPID2 are identifiers for the variant; POS is the physical position; 1 2 represents the allele values (1=ancestral, 2=derived); and ID1_0 ID1_1 ID2_0 ID2_1 is a list of 1s and 2s corresponding to each (haploid/phased) individual chromosome. The samples file has format
+where SNPID1 and SNPID2 are identifiers for the variant; POS is the physical position; 1 2 represents the allele values (1=ancestral, 2=derived); and ID1_0 ID1_1 ID2_0 ID2_1 is a list of 1s and 2s corresponding to each (haploid/phased) individual chromosome (0=carries ancestral allele, 1=carries derived allele). The samples file has format
 
      ID_1 ID_2 missing
      0 0 0
@@ -206,7 +206,7 @@ where SNPID1 and SNPID2 are identifiers for the variant; POS is the physical pos
      FAM_ID_2 IND_ID_2 0
      ...
 
-where the first two line are header information, and each following line contains family ID, individual ID, fraction missing (always 0 in simulation output). You can convert output from the haps/samples format to vcf using the "--hapsample2vcf" in [BCFTools](https://samtools.github.io/bcftools/bcftools.html). The VCF format is accepted in input by [Plink 2](https://www.cog-genomics.org/plink2).
+where the first two line are header information, and each following line contains family ID, individual ID, fraction missing (always 0 in simulation output). Individuals are diploid (i.e. merge of two haploids). You can convert output from the haps/samples format to vcf using the "--hapsample2vcf" in [BCFTools](https://samtools.github.io/bcftools/bcftools.html). The VCF format is accepted in input by [Plink 2](https://www.cog-genomics.org/plink2).
 
 **Seq output (-seq-out flag)**
 
