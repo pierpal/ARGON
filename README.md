@@ -56,7 +56,7 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 				(Default = print progress; example: "-quiet")
 	-age		Output age of alleles.
 				(Default = do not output age of alleles; example: "-age")
-	-gz		Compress output.
+	-gz			Compress output.
 				(Default = do not compress output; example: "-gz")
 	-trees		Output Newick trees.
 				(Default = do not output trees; example: "-trees")
