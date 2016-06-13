@@ -192,9 +192,9 @@ If the “-help” flag is activated, default values and a few examples of the a
 
 ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID_indID", where the ID of populations and individuals are integer numbers starting from 1. Diploid individuals are created by merging two haploid individuals, and phase information is maintained (using the "|" separator for the alleles). The full specification of the VCF 4.2 format is available [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf). The VCF format is accepted in input by [Plink 2](https://www.cog-genomics.org/plink2).
 
-**Haps/samples output (-haps-out flag)**
+**Haps/samples output**
 
-(See also [this](http://www.shapeit.fr/pages/m02_formats/hapssample.html) format reference). Sequence data will be written to a “.hap” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
+If the -haps-out flag is used the output will be written in haps/samples format (see also [this](http://www.shapeit.fr/pages/m02_formats/hapssample.html) format reference). Sequence data will be written to a “.hap” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
 
      SNPID1 SNPID2 POS 1 2 ID1_0 ID1_1 ID2_0 ID2_1 ...
 
@@ -208,9 +208,9 @@ where SNPID1 and SNPID2 are identifiers for the variant; POS is the physical pos
 
 where the first two line are header information, and each following line contains family ID, individual ID, fraction missing (always 0 in simulation output). Individuals are diploid (i.e. merge of two haploids). You can convert output from the haps/samples format to vcf using the "--hapsample2vcf" in [BCFTools](https://samtools.github.io/bcftools/bcftools.html). The VCF format is accepted in input by [Plink 2](https://www.cog-genomics.org/plink2).
 
-**Seq output (-seq-out flag)**
+**Seq output**
 
-Sequence data will be written to a “.mut” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
+If the -seq-out flag is used, Sequence data will be written to a “.mut” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
 
     posFrom  posTo  numMut  DAF  sequence
 
@@ -226,9 +226,9 @@ The -trees flag causes marginal [Newick trees](http://evolution.genetics.washing
 
 The “.map” file contains a list of “breakpoints”. These indicate the starting position of each marginal tree of the sampled ARG. If the output is written to screen, the string “BREAKPOINTS” will introduce this list on stdout.
 
-**Allele age (-age flag)**
+**Allele age**
 
-Each line of the ".age" file contains one allele age, with format
+If the -age flag is used, allele ages are written in a ".age" file. Each line of the ".age" file contains one allele age, with format
 
     chr SNP_name SNP_pos branchPhysStart branchPhysEnd mutAge branchGenStart branchGenEnd
 
