@@ -256,6 +256,6 @@ For bug reports or suggestions, please contact me at ppalama AT hsph DOT harvard
 
 ###Version history
 
-- June 13 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Uploading release code and binaries (160415).
+- June 13 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Uploading release code and binaries. Added Newick, VCF, Haps/Samples, allele age (160415).
 - Jan 13 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fixed recombination problem. Back to normal speed/memory usage in 160113.
 - Jan 10 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ARGON 0.1.160101 released.
