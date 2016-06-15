@@ -190,7 +190,7 @@ If the “-help” flag is activated, default values and a few examples of the a
 
 **VCF output**
 
-*NOTE: variants in VCF output are currently not sorted by physical position. Will fix this soon.*
+*NOTE: variants in VCF output are currently not sorted by physical position. Will fix this soon.* <br>
 ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID_indID", where the ID of populations and individuals are integer numbers starting from 1. Diploid individuals are created by merging two haploid individuals, and phase information is maintained (using the "|" separator for the alleles). The full specification of the VCF 4.2 format is available [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf). The VCF format is accepted in input by [Plink 2](https://www.cog-genomics.org/plink2).
 
 **Haps/samples output**
