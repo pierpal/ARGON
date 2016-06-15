@@ -195,6 +195,7 @@ ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID
 
 **Haps/samples output**
 
+*NOTE: variants in Haps/samples output are currently not sorted by physical position. Will fix this soon.* <br>
 If the -haps-out flag is used the output will be written in haps/samples format (see also [this](http://www.shapeit.fr/pages/m02_formats/hapssample.html) format reference). Sequence data will be written to a “.hap” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
 
      SNPID1 SNPID2 POS 1 2 ID1_0 ID1_1 ID2_0 ID2_1 ...
