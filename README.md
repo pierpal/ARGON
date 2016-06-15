@@ -190,12 +190,12 @@ If the “-help” flag is activated, default values and a few examples of the a
 
 **VCF output**
 
-*NOTE: variants in VCF output are currently not sorted by physical position. Will fix this soon.* <br>
+*NOTE: variants in Haps/samples output are currently not sorted by physical position. Will add an option to have sorted output. If you need sorted output, [Plink](https://www.cog-genomics.org/plink2) should be able to parse an unsorted VCF and output a sorted VCF.* <br>
 ARGON outputs VCF files by default. Individual IDs in the VCF have format "popID_indID", where the ID of populations and individuals are integer numbers starting from 1. Diploid individuals are created by merging two haploid individuals, and phase information is maintained (using the "|" separator for the alleles). The full specification of the VCF 4.2 format is available [here](http://samtools.github.io/hts-specs/VCFv4.2.pdf). The VCF format is accepted in input by [Plink 2](https://www.cog-genomics.org/plink2).
 
 **Haps/samples output**
 
-*NOTE: variants in Haps/samples output are currently not sorted by physical position. Will fix this soon.* <br>
+*NOTE: variants in Haps/samples output are currently not sorted by physical position. Will add an option to have sorted output. If you need sorted output, [Plink](https://www.cog-genomics.org/plink2) should be able to parse an unsorted VCF and output a sorted VCF.* <br>
 If the -haps-out flag is used the output will be written in haps/samples format (see also [this](http://www.shapeit.fr/pages/m02_formats/hapssample.html) format reference). Sequence data will be written to a “.hap” file (or to screen, with the “MUT” string prepended to each relevant line). Each line will have format
 
      SNPID1 SNPID2 POS 1 2 ID1_0 ID1_1 ID2_0 ID2_1 ...
@@ -251,7 +251,7 @@ where “ID1” and “ID2” specify the IDs of the individuals sharing an IBD 
 -	Enable specifying piecewise constant/exponential periods in demographic file format (fewer lines). May integrate with the [Demographic Language Parser](https://github.com/pierpal/DemographicLanguageParser).
 
 **Known issues**
--	VCF output is not sorted by phisical position. Will fix this soon.
+-	Output is not sorted by phisical position. Will add an option to have sorted output.
 -	If the recombination map in input is extremely fine grained, minor rounding issues may occur. This should not be a problem for most analyses.
 
 ###Contact
