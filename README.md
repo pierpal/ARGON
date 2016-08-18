@@ -224,6 +224,8 @@ The -trees flag causes marginal [Newick trees](http://evolution.genetics.washing
 
     treeHeight  posFrom  posTo NewickTree
 
+Note that posFrom and posTo are in microMorgans.
+
 **Marginal tree intervals**
 
 The “.map” file contains a list of “breakpoints”. These indicate the starting position of each marginal tree of the sampled ARG. If the output is written to screen, the string “BREAKPOINTS” will introduce this list on stdout.
@@ -248,6 +250,7 @@ where “ID1” and “ID2” specify the IDs of the individuals sharing an IBD 
 
 **TODO list**
 
+-	Use physical position for tree from/to output.
 -	Enable specifying piecewise constant/exponential periods in demographic file format (fewer lines). May integrate with the [Demographic Language Parser](https://github.com/pierpal/DemographicLanguageParser).
 
 **Known issues**
