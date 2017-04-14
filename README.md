@@ -248,7 +248,7 @@ The IBD output will be written to a “.ibd” file (or to screen, if the “-sc
 
 where “ID1” and “ID2” specify the IDs of the individuals sharing an IBD segment, “physFrom” and “physTo” specify the physical range of the IBD segment, “genFrom” and “genTo” specify the range expressed using genetic positions. The “lengthCM” field contains the segment length (in centimorgans). The “ancestorAge” and “ancestorID” fields contain the generation and the ID of the ancestor transmitting the IBD segment.
 
-###Known issues and planned updates
+### Known issues and planned updates
 
 **TODO list**
 
@@ -259,10 +259,10 @@ where “ID1” and “ID2” specify the IDs of the individuals sharing an IBD 
 -	Output is not sorted by phisical position. Will add an option to have sorted output.
 -	If the recombination map in input is extremely fine grained, minor rounding issues may occur. This should not be a problem for most analyses.
 
-###Contact
+### Contact
 For bug reports or suggestions, please contact me at ppalama AT hsph DOT harvard DOTAGAIN edu
 
-###Version history
+### Version history
 
 - June 13 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Uploading release code and binaries. Added Newick, VCF, Haps/Samples, allele age (160415).
 - Jan 13 2016&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Fixed recombination problem. Back to normal speed/memory usage in 160113.
