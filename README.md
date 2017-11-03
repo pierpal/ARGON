@@ -188,7 +188,7 @@ If the “-gz” flag is activated, most output files will be compressed using g
 
 If the “-help” flag is activated, default values and a few examples of the available command line arguments are printed.
 
-###Output format
+### Output format
 
 **VCF output**
 
