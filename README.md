@@ -62,7 +62,7 @@ The input format of ARGON is similar to that of the [GENOME](http://csg.sph.umic
 				(Default = do not output trees; example: "-trees")
 ###### approximation
 	-len		Minimum block size.
-			    (Default = 1; example: "-len 1" or "-len 10000")
+			    	(Default = 1; example: "-len 1" or "-len 10000")
 ###### other options
 	-seed		Random seed.
 	    			(Default = random; example: "-seed 1234")
