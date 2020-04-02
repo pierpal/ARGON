@@ -433,6 +433,7 @@ public class Argon {
 //                        System.out.println();
 //                    }
                     int GCend = -1;
+                    boolean inGC = false;
                     while (ind != null) {
                         if (doGeneConversion) { //TODO: should avoid this and try to have unique piece of code for both gene conversion and no-gene conversion
 //                            if (verbose) {
@@ -442,6 +443,7 @@ public class Argon {
                             nextRec = 0;
                             if (ind.segments.get(0).start > GCend) {
                                 // the previous tract was not gene conversion, or the gene conversion tract has already ended by the start of the current block
+                                inGC = false;
                                 int distToNextRec = (int) Math.round(Tools.sampleExponential(nextRecOrGCRate, generator));
                                 nextRec = ind.segments.get(0).start + Tools.roundToBlock(distToNextRec, minBlockSize);
 //                                if (verbose) {
@@ -450,21 +452,45 @@ public class Argon {
                             } else {
                                 // the previous tract was gene conversion, and the gene conversion tract has not ended by the start of the current block
                                 nextRec = GCend;
+                                inGC = true;
 //                                if (verbose) {
 //                                    System.out.println("In GC tract. Will terminate at previously sampled position:\t" + nextRec);
 //                                }
                             }
                             int parentTill = nextRec;
+
                             if (ind.segments.get(ind.segments.size() - 1).end >= parentTill && parentTill >= ind.segments.get(0).start) {
 //                                if (verbose) {
 //                                    System.out.println("Will recombine at " + parentTill);
 //                                }
                                 // recombination will happen, handle current individual and update current with remaining part, then iterate
-                                ArrayList<Block> otherGuySegments = ind.splitAfterSomeBlocks(parentTill, ind.ID, gen);
+                                ArrayList<Block> otherGuySegments = ind.splitAfterSomeBlocks(parentTill, ind.ID, gen, inGC);
                                 nextIndividualChunk = new Individual(ind.ID, otherGuySegments);
                                 nextIndividualChunk.ID = ind.ID;
                             } else {
                                 nextIndividualChunk = null;
+                            }                           
+
+                            // if GCend == nextRec, I have just terminated a GC tract, will sample next GC/rec event. Else, may sample a GC
+                            if (GCend != nextRec && parentTill < genomeSizeGenetic && generator.nextDouble() < probGeneConversionGivenRec) { //generator.nextDouble() < probGeneConversionGivenRec) {
+                                // Enter gene conversion tract, will be resolved in next iteration
+                                GCend = Tools.roundToBlock(sampleGeneConversionTract(parentTill, debug), minBlockSize);;
+//                                if (verbose) {
+//                                    System.out.println("Gene conversion tract from " + parentTill + " to " + GCend);
+//                                }
+                            } else {
+                                // With GCend at -1, we ensure a recombination event is sampled in next iteration
+                                GCend = -1;
+//                                System.out.println("Recombination from " + parentTill);
+//                                if (verbose) {
+//                                    if (GCend != nextRec) {
+//                                        if (verbose) {
+//                                            System.out.println("No gene conversion tract, standard recombination will happen (because of sampling or genome size).");
+//                                        }
+//                                    } else {
+//                                        System.out.println("No gene conversion tract, standard recombination will happen (because a GC just happened).");
+//                                    }
+//                                }
                             }
 
                             //handle current individual here
@@ -522,25 +548,7 @@ public class Argon {
                             ind = nextIndividualChunk;
                             parentQueue.add(parent);
                             sampledPopQueue.add(sampledPopID);
-                            // if GCend == nextRec, I have just terminated a GC tract, will sample next GC/rec event. Else, may sample a GC
-                            if (GCend != nextRec && parentTill < genomeSizeGenetic && generator.nextDouble() < probGeneConversionGivenRec) {
-                                // enter gene conversion tract
-                                GCend = Tools.roundToBlock(sampleGeneConversionTract(parentTill, debug), minBlockSize);;
-//                                if (verbose) {
-//                                    System.out.println("Gene conversion tract from " + parentTill + " to " + GCend);
-//                                }
-                            } else {
-                                GCend = -1;
-//                                if (verbose) {
-//                                    if (GCend != nextRec) {
-//                                        if (verbose) {
-//                                            System.out.println("No gene conversion tract, standard recombination will happen (because of sampling or genome size).");
-//                                        }
-//                                    } else {
-//                                        System.out.println("No gene conversion tract, standard recombination will happen (because a GC just happened).");
-//                                    }
-//                                }
-                            }
+
                         } else {
                             if (debug) {
                                 System.out.println("Pop: " + currPop + " Ind: " + ind.ID + "; gen " + gen);
@@ -559,7 +567,8 @@ public class Argon {
                                     System.out.println("Will recombine at " + parentTill);
                                 }
                                 // recombination will happen, handle current individual and update current with remaining part, then iterate
-                                ArrayList<Block> otherGuySegments = ind.splitAfterSomeBlocks(parentTill, ind.ID, gen);
+                                // if gene conversion is off, inGC will always be set to false
+                                ArrayList<Block> otherGuySegments = ind.splitAfterSomeBlocks(parentTill, ind.ID, gen, inGC);
                                 nextIndividualChunk = new Individual(ind.ID, otherGuySegments);
                                 nextIndividualChunk.ID = ind.ID;
                             } else {
@@ -791,6 +800,7 @@ public class Argon {
         int IBD_to = 0;
         int IBD_fromGen = 0;
         int IBD_toGen = 0;
+        boolean IBD_isGC = false;
         ArrayList<DescendantsList> IBD_sets = null;
 
         if (printMUT || printIBD || writeAFS || printAFS) { //TODO: efficient visit of ARG
@@ -928,6 +938,7 @@ public class Argon {
                             IBD_to = toPhys;
                             IBD_fromGen = doneBlock.start;
                             IBD_toGen = doneBlock.end;
+                            IBD_isGC = doneBlock.isGC;
                         }
                         for (Block c : doneBlock.children) {
                             DescendantsList dL = currentBlockMap.get(c);
@@ -952,7 +963,8 @@ public class Argon {
                             int IBD_gen = doneBlock.gen;
                             long IBD_ID = doneBlock.ID;
                             try {
-                                StringBuilder IBDstring = IBDFactory.addIBDset(IBD_from, IBD_to, IBD_fromGen, IBD_toGen, IBD_gen, IBD_ID, IBD_sets);
+
+                                StringBuilder IBDstring = IBDFactory.addIBDset(IBD_from, IBD_to, IBD_fromGen, IBD_toGen, IBD_gen, IBD_ID, IBD_sets, IBD_isGC);
                                 if (IBDstring.length() != 0) {
                                     if (writeOutFiles) {
                                         IBDwriter.write(IBDstring.toString());

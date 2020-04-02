@@ -15,6 +15,7 @@ public class IBD {
     String[][] ancestors;
     Integer[][] ancStart;
     TreeMap<Integer, Integer> map = new TreeMap<Integer, Integer>();
+    TreeMap<Integer, Integer> GC_map = new TreeMap<Integer, Integer>();
 
     public IBD(float threshold, int samples) {
         this.threshold = threshold;
@@ -29,12 +30,16 @@ public class IBD {
         }
     }
 
-    public StringBuilder addIBDset(int from, int to, int fromGen, int toGen, int gen, long ID, ArrayList<DescendantsList> sets) throws Exception {
+    public StringBuilder addIBDset(int from, int to, int fromGen, int toGen, int gen, long ID, ArrayList<DescendantsList> sets, boolean isGC) throws Exception {
         StringBuilder IBDstring = new StringBuilder();
+        // Adds from and to to the map
         map.put(fromGen, from);
         map.put(toGen, to);
+        GC_map.put(fromGen, isGC ? 1 : 0);
+        // Get current set list
         DescendantsList currentSetList = sets.get(0);
         HashSet<Integer> currentSet = currentSetList.getHashSetClone();
+        // Iterate over descendants
         for (int i = 1; i < sets.size(); i++) {
             DescendantsList nextSetList = sets.get(i);
             HashSet<Integer> nextSet = nextSetList.getHashSetClone();
@@ -48,17 +53,21 @@ public class IBD {
                         id1 = k - 1;
                         id2 = j - 1;
                     }
+                    // Fetch ancestors and segment starts
                     String anc = ancestors[id1][id2];
                     Integer start = ancStart[id1][id2];
                     if (anc.compareTo("") == 0) {
+                        // If they don't exist, save them
                         ancestors[id1][id2] = gen + "\t" + ID;
                         ancStart[id1][id2] = fromGen;
                     } else if (anc.compareTo(gen + "\t" + ID) != 0) {
+                        // If they do but they're not the same ones, update
                         int len = fromGen - start;
                         ancestors[id1][id2] = gen + "\t" + ID;
                         ancStart[id1][id2] = fromGen;
                         if (len / 1000000.0f >= threshold) {
-                            IBDstring.append(new StringBuilder((id1 + 1) + "\t" + (id2 + 1) + "\t" + map.get(start) + "\t" + map.get(fromGen - 1) + "\t" + start + "\t" + (fromGen - 1) + "\t" + len / 1000000.0 + "\t" + anc + "\n"));
+                            // If the segment is long enough build string
+                            IBDstring.append(new StringBuilder((id1 + 1) + "\t" + (id2 + 1) + "\t" + map.get(start) + "\t" + map.get(fromGen - 1) + "\t" + start + "\t" + (fromGen - 1) + "\t" + len / 1000000.0 + "\t" + anc + "\t" + GC_map.get(start) + "\n"));
                         }
                     }
                 }
@@ -74,9 +83,10 @@ public class IBD {
             for (int j = i + 1; j < samples; j++) {
                 String anc = ancestors[i][j];
                 Integer start = ancStart[i][j];
+                int isGC = GC_map.containsKey(start) ? GC_map.get(start) : 0;
                 int len = toGen - start + 1;
                 if (len / 1000000.0f >= threshold) {
-                    IBDstring.append(new StringBuilder((i + 1) + "\t" + (j + 1) + "\t" + map.get(start) + "\t" + map.get(toGen) + "\t" + start + "\t" + toGen + "\t" + len / 1000000.0 + "\t" + anc + "\n"));
+                    IBDstring.append(new StringBuilder((i + 1) + "\t" + (j + 1) + "\t" + map.get(start) + "\t" + map.get(toGen) + "\t" + start + "\t" + toGen + "\t" + len / 1000000.0 + "\t" + anc + "\t" + isGC + "\n"));
                 }
             }
         }

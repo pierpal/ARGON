@@ -60,10 +60,11 @@ public class Individual {
         System.out.println();
     }
 
-    public ArrayList<Block> splitAfterSomeBlocks(int targetBlock, long ID, int gen) {
+    public ArrayList<Block> splitAfterSomeBlocks(int targetBlock, long ID, int gen, boolean inGC) {
 //        if (verboseRecomb) {
 //            System.out.println("************ START RECOMB at gen " + gen + " targetPos: " + targetBlock);
-//            System.out.print("start thid ind ");
+//            System.out.println("GC is " + inGC);
+//            System.out.print("start this ind ");
 //            print(segments);
 //        }
         ArrayList<Block> newMe = new ArrayList<Block>();
@@ -74,7 +75,11 @@ public class Individual {
                 break; // from here on it's next ind
             } else if (segments.get(pos).start < targetBlock && segments.get(pos).end >= targetBlock) {
                 Block recombinant = segments.get(pos);
-                Block chunkInNewThisInd = new Block(ID, gen, recombinant.start, targetBlock - 1, recombinant.numberOfDescendants);
+                // When we find a block containing the target, we split it up by
+                //    start  - target-1
+                //    target - end
+                // If inGC is true, we are terminating a GC block, so the lefmost fragment is labeled GC
+                Block chunkInNewThisInd = new Block(ID, gen, recombinant.start, targetBlock - 1, recombinant.numberOfDescendants, inGC);
                 Block chunkInOtherInd = new Block(ID, gen, targetBlock, recombinant.end, recombinant.numberOfDescendants);
                 newMe.add(chunkInNewThisInd);
                 otherInd.add(chunkInOtherInd);
@@ -175,7 +180,7 @@ public class Individual {
 //                    }
                     destination.remove(destination.size() - 1);
                     if (testedBlockInDestination.start < coalesceRange.start) {
-                        Block headBlock = new Block(ID, gen, testedBlockInDestination.start, coalesceRange.start - 1, testedBlockInDestination.numberOfDescendants);
+                        Block headBlock = new Block(ID, gen, testedBlockInDestination.start, coalesceRange.start - 1, testedBlockInDestination.numberOfDescendants);//, testedBlockInDestination.isGC);
                         headBlock.representedChildren = testedBlockInDestination.representedChildren;
                         created.add(headBlock); // add this block to the list of created blocks
 //                        if (verboseCoalesce) {
