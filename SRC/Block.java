@@ -12,6 +12,7 @@ public class Block implements Comparable {
 
     public int start;
     public int end;
+    public boolean isGC = false;
     int numberOfDescendants;
     public boolean isCoalescent = false;
     public Block representedChildren = this;
@@ -29,7 +30,6 @@ public class Block implements Comparable {
 //    protected void finalize() { //remove
 //        killed++; //remove
 //    } //remove
-    
     Block(long ID, int gen, int start, int end, int descendants) {
 //        count++; //remove
 //        this.ID = count; //remove
@@ -38,6 +38,17 @@ public class Block implements Comparable {
         this.start = start;
         this.end = end;
         this.numberOfDescendants = descendants;
+    }
+   
+    Block(long ID, int gen, int start, int end, int descendants, boolean isGC) {
+//        count++; //remove
+//        this.ID = count; //remove
+        this.ID = ID;
+        this.gen = gen;
+        this.start = start;
+        this.end = end;
+        this.numberOfDescendants = descendants;
+        this.isGC = isGC;
     }
 
     public boolean addParent(Block parent) {
@@ -56,7 +67,8 @@ public class Block implements Comparable {
     public Block overlap(Block b) {
 //        System.out.println(this.start + "-" + this.end + " " + b.start + "-" + b.end + " " + !((this.start > b.end + 1) || (b.start > this.end + 1)));
         if (!((this.start > b.end) || (b.start > this.end))) {
-            return new Block(0, 0, Math.max(this.start, b.start), Math.min(b.end, this.end), 0);
+            // If either one of overlapping blocks is a GC tract, the overlap is also labelled a GC block
+            return new Block(0, 0, Math.max(this.start, b.start), Math.min(b.end, this.end), 0, b.isGC || this.isGC);
 //            coalesceRange.start = Math.max(this.start, b.start);
 //            coalesceRange.end = Math.min(b.end, this.end);
         } else {
